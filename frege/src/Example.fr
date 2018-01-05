@@ -1,0 +1,29 @@
+module realworld.Example where
+
+import Java.Net (URL)
+
+getURL xx = do
+    url <- URL.new xx 
+    con <- url.openConnection
+    con.connect
+    is  <- con.getInputStream
+    typ <- con.getContentType
+    -- stderr.println ("content-type is " ++ show typ)
+    ir  <- InputStreamReader.new is (fromMaybe "UTF-8" (charset typ))
+    br  <- BufferedReader.new ir
+    br.getLines
+  where
+    unsupportedEncoding :: InputStream -> UnsupportedEncodingException -> IO InputStreamReader
+    unsupportedEncoding is x = do
+      stderr.println x.caught
+      InputStreamReader.new is "UTF-8"
+    charset ctyp = do
+      typ <- ctyp
+      case typ of
+        m~´charset=(\S+)´ -> m.group 1
+        _ -> Nothing
+
+
+main _ =  do
+  r <- getURL "https://coincheck.com/api/rate/xrp_jpy"
+  println r
