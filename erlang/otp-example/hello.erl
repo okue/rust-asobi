@@ -1,6 +1,5 @@
 -module(hello).
 -behaviour(gen_server).
--define(SERVER, ?MODULE).
 -record(state, {count}).
 %%-----------------------------------------------------------------------------
 %% API Function Exports
@@ -25,24 +24,24 @@
 %% ---------------------------------------------------------------------------
 start_link() ->                % start_link spawns and links to a new 
     gen_server:start_link(     %  process in one atomic step. The parameters:
-      {local, ?SERVER},        %  - name to register the process under locally
+      {local, ?MODULE},        %  - name to register the process under locally
       ?MODULE,                 %  - the module to find the init/1 callback in 
       [],                      %  - what parameters to pass to init/1
       []).                     %  - additional options to start_link
 
 stop() ->                      % Note that we do not use ! anymore. Instead
     gen_server:cast(           %  we use cast to send a message asynch. to
-      ?SERVER,                 %  the registered name. It is asynchronous
+      ?MODULE,                 %  the registered name. It is asynchronous
       stop).                   %  because we do not expect a response.
 
 say_hello() ->                 % Pretty much the same as stop above except
     gen_server:cast(           %  that we send the atom say_hello instead.
-      ?SERVER,                 %  Again we do not expect a response but
+      ?MODULE,                 %  Again we do not expect a response but
       say_hello).              %  are only interested in the side effect.
 
 get_count() ->                 % Here, on the other hand, we do expect a 
     gen_server:call(           %  response, which is why we use call to
-      ?SERVER,                 %  synchronously invoke our server. The call 
+      ?MODULE,                 %  synchronously invoke our server. The call 
       get_count).              %  blocks until we get the response. Note how
                                %  gen_server:call/2 hides the send/receive
                                %  logic from us. Nice.

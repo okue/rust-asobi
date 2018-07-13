@@ -5,10 +5,10 @@
 -export([init/1]).
 
 start_link() ->
-    supervisor:start_link(hello_sup, []).
+    supervisor:start_link({local, hello_sup}, hello_sup, []).
 
 init(_Args) ->
-    {ok, {{one_for_one, 1, 60},
+    {ok, {{one_for_one, 60, 60},
           [
            {
             hello, {hello, start_link, []},
