@@ -1,1 +1,2 @@
 rm */*.beam
+rm *.beam

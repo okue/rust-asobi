@@ -1,4 +1,4 @@
--module(server).
+-module(toy_http_server).
 -export([start/1]).
 
 start(Port) ->
