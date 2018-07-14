@@ -41,7 +41,8 @@ get_count() ->
 init([]) ->
   process_flag(trap_exit, true),
   io:format("hello:init is called~n"),
-  spawn_link(fun hoge/0),
+  Pid = spawn_link(fun hoge/0),
+  io:format("spawn_link hoge process[PID=~p]~n", [Pid]),
   {ok, #state{count = 0}}.
 
 handle_call(get_count, _From, #state{count=Count}) -> 
@@ -70,5 +71,5 @@ code_change(_OldVsn, State, _Extra) ->
 
 hoge() ->
   io:format("hoge [PID=~p] is alive~n", [self()]),
-  timer:sleep(2500),
+  timer:sleep(5000),
   hoge().
