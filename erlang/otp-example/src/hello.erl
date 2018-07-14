@@ -9,7 +9,9 @@
   start_link/0,
   stop/0,
   say_hello/0,
-  get_count/0]).
+  get_count/0,
+  hoge/0
+]).
 
 %% gen_server Function Exports
 
@@ -41,12 +43,25 @@ get_count() ->
 init([]) ->
   process_flag(trap_exit, true),
   io:format("hello:init is called~n"),
-  Pid = spawn_link(fun hoge/0),
-  io:format("spawn_link hoge process[PID=~p]~n", [Pid]),
+  try
+    Pid = spawn_link(fun hoge/0),
+    io:format("spawn_link hoge process[PID=~p]~n", [Pid]),
+    register(hoge_process, Pid)
+  of
+    _ ->
+      io:format("register ~p as hoge_process~n", [whereis(hoge_process)])
+  catch
+    throw:X ->
+      io:format("throw:~p~n", [X]);
+    exit:X ->
+      io:format("exit:~p~n", [X]);
+    error:X ->
+      io:format("error:~p~n", [X])
+  end,
   {ok, #state{count = 0}}.
 
 handle_call(get_count, _From, #state{count=Count}) -> 
-  {reply, Count, #state{count=Count+1}}.
+  {reply, Count, #state{count = Count + 1}}.
 
 handle_cast(stop, State) ->
   {stop, normal, State};
