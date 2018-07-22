@@ -85,6 +85,5 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal
 
 hoge() ->
-  io:format("hoge [PID=~p] is alive~n", [self()]),
-  timer:sleep(5000),
-  hoge().
+  io:format("hoge [PID=~p] is spawned~n", [self()]),
+  timer:sleep(5000).
