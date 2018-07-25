@@ -5,6 +5,10 @@ compile:
 start: compile
 	erl -pa ebin/ -eval 'application:load(hello_app), application:start(hello_app), observer:start().'
 
+client_start: compile
+	# erl -pa ebin/ -eval 'application:load(hello_app), application:start(hello_app).'
+	erl -pa ebin/ -eval 'application:load(hello_app), application:start(hello_app), hello_client:main().'
+
 testing:
 	concuerror -f test/hello_test.erl -m hello_test -t test --pa src
 
