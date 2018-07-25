@@ -87,3 +87,7 @@ code_change(_OldVsn, State, _Extra) ->
 hoge() ->
   io:format("hoge [PID=~p] is spawned~n", [self()]),
   timer:sleep(5000).
+
+internal_dummy_func() ->
+  hello_hoge:hoge(),
+  ok.
