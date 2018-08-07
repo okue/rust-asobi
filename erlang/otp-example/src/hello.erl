@@ -44,8 +44,10 @@ init([]) ->
   process_flag(trap_exit, true),
   io:format("hello:init is called~n"),
   try
-    Pid = spawn_link(fun hoge/0),
+    Pid  = spawn_link(fun hoge/0),
     io:format("spawn_link hoge process[PID=~p]~n", [Pid]),
+    Pid2 = spawn_link(fun()-> hoge(Pid) end),
+    io:format("spawn_link hoge process[PID=~p]~n", [Pid2]),
     register(hoge_process, Pid)
   of
     _ ->
@@ -85,10 +87,14 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal
 
 hoge() ->
-  io:format("hoge [PID=~p] is spawned~n", [self()]),
-  timer:sleep(10000),
-  hoge().
+  % link(hello_sup),
+  hoge(0).
 
-internal_dummy_func() ->
-  hello_hoge:hoge(),
-  ok.
+hoge(Pid) when is_pid(Pid) ->
+  link(Pid),
+  hoge();
+
+hoge(N) when is_number(N) ->
+  io:format("hoge [PID=~p] is alive~n", [self()]),
+  timer:sleep(60000),
+  hoge(N).
