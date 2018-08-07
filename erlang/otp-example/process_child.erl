@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%          API functions                                                    %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%
 %% 前提:
 %% スーパバイザの親は, アプリケーションまたはスーパバイザ.
 %% スーパバイザとリンクしているのは, スーパバイザの直接の子供のみ.
@@ -15,17 +15,29 @@
 %% スーパバイザの子供を追えない.
 %%
 
+%%
+%% SupRefList must be list of supervisor pid or name.
+%%
 search(SupRefList) when is_list(SupRefList) ->
-  Pids = lists:flatmap(fun(Ref) -> search(supervisor, Ref) end, SupRefList),
+  Pids = lists:flatmap(fun(SupRef) -> search(supervisor, SupRef) end, SupRefList),
   lists:sort(Pids).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%        Internal functions                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 search(supervisor, undefined) -> [];
 
 search(supervisor, SupRef) when is_pid(SupRef) or is_atom(SupRef) ->
   Ref = to_pid(SupRef),
+  %% 仮定:
+  %%  任意のスーパバイザの子供木t_1, t_2について,
+  %%  t_1内のプロセスとt_2内のプロセスの間にリンクはない
   Children = lists:flatmap(
     fun
       ({_Name, Pid, supervisor, _}) ->
+        % Not include Ref in this list
         search(supervisor, Pid);
       ({_Name, Pid, worker, _}) ->
         % Not include Ref in this list
@@ -35,7 +47,7 @@ search(supervisor, SupRef) when is_pid(SupRef) or is_atom(SupRef) ->
   % Append Ref to the result
   lists:umerge([Ref], Children).
 
-search(worker, undefined, _) -> [];
+search(worker, undefined, Acc) -> Acc;
 
 search(worker, Ref, Acc) when (is_pid(Ref) or is_port(Ref)) and is_list(Acc) ->
   {links, AllLinks} =
@@ -43,6 +55,7 @@ search(worker, Ref, Acc) when (is_pid(Ref) or is_port(Ref)) and is_list(Acc) ->
       true  -> erlang:process_info(Ref, links);
       false -> erlang:port_info(Ref, links)
     end,
+  %% Refがリンクしているプロセスから, Accを除く
   Links = lists:sort(AllLinks) -- Acc,
   % io:format("~p --> ~p ~p~n", [Ref, Acc, Links]),
   MergedAcc = lists:umerge([Ref], Acc),
@@ -56,10 +69,6 @@ search(worker, Ref, Acc) when (is_pid(Ref) or is_port(Ref)) and is_list(Acc) ->
                  lists:umerge(MergedAcc, Acc2))
         end, [], Links)
   end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%        Internal functions                                                 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 to_pid(Ref) when is_pid(Ref) -> Ref;
 to_pid(Ref) when is_atom(Ref) -> whereis(Ref).
