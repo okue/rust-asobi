@@ -37,12 +37,14 @@ search(supervisor, SupRef) when is_pid(SupRef) or is_atom(SupRef) ->
 
 search(worker, undefined, _) -> [];
 
-search(worker, Ref, _) when is_port(Ref) -> [];
-
-search(worker, Ref, Acc) when is_pid(Ref) and is_list(Acc) ->
-  {links, AllLinks} = erlang:process_info(Ref, links),
+search(worker, Ref, Acc) when (is_pid(Ref) or is_port(Ref)) and is_list(Acc) ->
+  {links, AllLinks} =
+    case is_pid(Ref) of
+      true  -> erlang:process_info(Ref, links);
+      false -> erlang:port_info(Ref, links)
+    end,
   Links = lists:sort(AllLinks) -- Acc,
-  io:format("~p --> ~p ~p~n", [Ref, Acc, Links]),
+  % io:format("~p --> ~p ~p~n", [Ref, Acc, Links]),
   MergedAcc = lists:umerge([Ref], Acc),
   case Links of
     [] -> MergedAcc;
