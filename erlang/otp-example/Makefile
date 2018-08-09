@@ -17,7 +17,11 @@ testing:
 	concuerror -f test/hello_test.erl -m hello_test -t test --pa src
 
 dialyze:
-	dialyzer ebin/
+	dialyzer --src . src/\
+					 --no_check_plt\
+					 -Wunmatched_returns -Werror_handling\
+					 -Wrace_conditions\
+					 -Wunderspecs -Woverspecs
 
 xref:
 	erl -pa ebin/ -eval '\
