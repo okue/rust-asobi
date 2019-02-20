@@ -45,10 +45,8 @@ init([]) ->
   io:format("hello:init is called~n"),
   try
     Pid = spawn_link(fun hoge/0),
-    io:format("spawn_link hoge process[PID=~p]~n", [Pid]),
     register(hoge_process, Pid),
     Pid2 = spawn_link(fun()-> hoge(Pid) end),
-    io:format("spawn_link hoge process[PID=~p]~n", [Pid2]),
     ok
   of
     _ ->

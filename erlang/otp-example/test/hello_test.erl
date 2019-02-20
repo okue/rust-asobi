@@ -2,8 +2,10 @@
 -export([test/0]).
 
 test() ->
-  hello_sup:start_link(),
+  application:start(hello),
   case whereis(hoge_process) of
     undefined -> erlang:error(no_hoge_process);
-    _ -> ok
-  end.
+    _ -> ok, io:format("OK~n")
+  end,
+  os:cmd('ls'),
+  ok = application:stop(hello).

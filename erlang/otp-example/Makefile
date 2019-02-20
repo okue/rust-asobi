@@ -14,7 +14,7 @@ client_start: compile
 		hello_client:main().'
 
 testing:
-	concuerror -f test/hello_test.erl -m hello_test -t test --pa src
+	concuerror -m hello_test -t test --pa ebin
 
 dialyze: compile
 	dialyzer\
