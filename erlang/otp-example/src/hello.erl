@@ -10,7 +10,8 @@
   stop/0,
   say_hello/0,
   get_count/0,
-  hoge/0
+  hoge/0,
+  hoge/1
 ]).
 
 %% gen_server Function Exports
@@ -46,7 +47,7 @@ init([]) ->
   try
     Pid = spawn_link(fun hoge/0),
     register(hoge_process, Pid),
-    Pid2 = spawn_link(fun()-> hoge(Pid) end),
+    _Pid2 = spawn_link(fun()-> hoge(Pid) end),
     ok
   of
     _ ->
@@ -98,6 +99,6 @@ hoge(Pid) when is_pid(Pid) ->
   hoge().
 
 hoge() ->
-  io:format("hoge [PID=~p] is alive~n", [self()]),
+  % io:format("hoge [PID=~p] is alive~n", [self()]),
   timer:sleep(60000),
   hoge().

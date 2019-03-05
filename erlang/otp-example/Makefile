@@ -13,7 +13,7 @@ client_start: compile
 		application:load(hello_app), application:start(hello_app),\
 		hello_client:main().'
 
-testing:
+testing: compile
 	concuerror -m hello_test -t test --pa ebin
 
 dialyze: compile
